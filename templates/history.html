@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ platform }} | سجل التقديرات{% endblock %}
+{% block content %}
+    <div class="page-head">
+      <h1>سجل التقديرات</h1>
+      <p>تقديراتك السابقة على المتصفح ده بس. بتتحفظ بكوكي مجهول من غير أي بيانات شخصية.</p>
+    </div>
+
+    <div class="kpis hist-kpis" id="summary" aria-live="polite">
+      <div class="card kpi"><p class="label">إجمالي التقديرات</p><p class="kpi-v" id="s-total">0</p></div>
+      <div class="card kpi"><p class="label">مبالغ فيه</p><p class="kpi-v c-over" id="s-overpriced">0</p></div>
+      <div class="card kpi"><p class="label">سعر عادل</p><p class="kpi-v c-fair" id="s-fair">0</p></div>
+      <div class="card kpi"><p class="label">فرصة</p><p class="kpi-v c-good" id="s-opportunity">0</p></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="field">
+        <label for="filter">عرض</label>
+        <select id="filter">
+          <option value="">كل التقديرات</option>
+          <option value="overpriced">مبالغ فيه</option>
+          <option value="fair">سعر عادل</option>
+          <option value="opportunity">فرصة</option>
+        </select>
+      </div>
+      <div class="toolbar-actions">
+        <a class="btn primary" href="{{ url_for('index') }}">تقدير جديد</a>
+        <button type="button" class="btn danger" id="clear" disabled>مسح السجل</button>
+      </div>
+    </div>
+
+    <div class="card table-card">
+      <table class="hist" id="hist">
+        <thead>
+          <tr><th scope="col">التاريخ</th><th scope="col">العقار</th><th scope="col">السعر المتوقع</th><th scope="col">السعر المعروض</th><th scope="col">الفرق</th><th scope="col">الحكم</th><th scope="col"><span class="sr">إجراءات</span></th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div id="empty" class="empty-state" hidden>
+        <p class="empty-title" id="empty-title">لسه معملتش أي تقدير</p>
+        <p class="label">ابدأ بتقدير سعر عقار وهيظهر هنا تلقائيًا.</p>
+        <a class="btn primary" href="{{ url_for('index') }}">ابدأ التقدير</a>
+      </div>
+      <p id="hist-error" class="form-error" role="alert" hidden></p>
+    </div>
+
+    <nav class="pager" id="pager" aria-label="التنقل بين الصفحات" hidden>
+      <button type="button" class="btn" id="prev">السابق</button>
+      <span id="page-info" class="label"></span>
+      <button type="button" class="btn" id="next">التالي</button>
+    </nav>
+{% endblock %}
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ platform }} | تقدير سعر العقار{% endblock %}
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="page-head">
+      <h1>تقدير سعر عقار</h1>
+      <p>أدخل بيانات العقار والسعر المعروض لتعرف السعر العادل المتوقع.</p>
+    </div>
+
+    <div id="notice" class="notice" role="note" hidden>
+      النسخة دي شغالة على بيانات تجريبية لأغراض العرض، فالأرقام مش أسعار سوق حقيقية.
+    </div>
+
+    <section class="layout">
+      <form id="form" class="card form-card" novalidate>
+        <h2 class="sec"><span class="n" aria-hidden="true">1</span>الموقع</h2>
+        <div class="grid g2">
+          <div class="field"><label for="city">المدينة</label><select id="city" name="city" required></select><p class="err" id="err-city" hidden></p></div>
+          <div class="field"><label for="district">الحي</label><select id="district" name="district" required></select><p class="err" id="err-district" hidden></p></div>
+        </div>
+
+        <h2 class="sec"><span class="n" aria-hidden="true">2</span>مواصفات العقار</h2>
+        <div class="grid g3">
+          <div class="field"><label for="area_m2">المساحة (م²)</label><input id="area_m2" name="area_m2" inputmode="decimal" autocomplete="off" required><p class="err" id="err-area_m2" hidden></p></div>
+          <div class="field"><label for="age_years">عمر العقار (سنة)</label><input id="age_years" name="age_years" inputmode="numeric" autocomplete="off" required><p class="err" id="err-age_years" hidden></p></div>
+          <div class="field"><label for="floor">الدور</label><input id="floor" name="floor" inputmode="numeric" autocomplete="off" required><p class="err" id="err-floor" hidden></p></div>
+          <div class="field"><label for="rooms">عدد الغرف</label><input id="rooms" name="rooms" inputmode="numeric" autocomplete="off" required><p class="err" id="err-rooms" hidden></p></div>
+          <div class="field"><label for="bathrooms">عدد الحمامات</label><input id="bathrooms" name="bathrooms" inputmode="numeric" autocomplete="off" required><p class="err" id="err-bathrooms" hidden></p></div>
+          <div class="field"><label for="finishing">التشطيب</label><select id="finishing" name="finishing" required></select><p class="err" id="err-finishing" hidden></p></div>
+        </div>
+
+        <h2 class="sec"><span class="n" aria-hidden="true">3</span>السعر المعروض</h2>
+        <div class="field half">
+          <label for="asking_price">السعر المطلوب من البائع (ج.م)</label>
+          <input id="asking_price" name="asking_price" inputmode="numeric" autocomplete="off" required>
+          <p class="err" id="err-asking_price" hidden></p>
+        </div>
+
+        <p id="form-error" class="form-error" role="alert" hidden></p>
+        <div class="actions">
+          <button type="submit" class="btn primary" id="submit">احسب السعر</button>
+          <button type="reset" class="btn" id="reset">مسح الحقول</button>
+        </div>
+      </form>
+
+      <aside class="side">
+        <div class="card pad" id="map-card">
+          <h2 class="side-title">الموقع على الخريطة <span class="opt">(اختياري)</span></h2>
+          <div id="map" role="region" aria-label="خريطة الأحياء. اختيار الحي متاح أيضًا من القائمة."></div>
+          <div class="legend" aria-hidden="true"><span>سعر المتر أقل</span><i></i><span>أعلى</span></div>
+          <p class="label sm">اضغط على حي في الخريطة لاختياره، والدائرة الأغمق تعني سعر متر أعلى.</p>
+        </div>
+        <div class="card pad">
+          <h2 class="side-title">ماذا ستحصل عليه؟</h2>
+          <ul class="plain">
+            <li>السعر العادل المتوقع ونطاقه</li>
+            <li>مقارنة بالسعر المعروض وحكم واضح</li>
+            <li>اتجاه أسعار الحي في آخر سنتين</li>
+            <li>صفقات مشابهة اتباعت في الحي</li>
+          </ul>
+        </div>
+        <p class="fine">النتيجة تقدير استرشادي وليست تقييمًا رسميًا.</p>
+      </aside>
+    </section>
+
+    <section id="result" class="result" aria-labelledby="result-title" hidden>
+      <div class="result-head">
+        <div>
+          <h2 id="result-title" tabindex="-1">تقدير سعر العقار</h2>
+          <div id="chips" class="chips"></div>
+        </div>
+        <div class="head-actions">
+          <button type="button" class="btn" id="print">طباعة / PDF</button>
+          <button type="button" class="btn primary" id="again">تقدير جديد</button>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div class="card pad">
+          <p class="label">السعر العادل المتوقع</p>
+          <p class="price" dir="ltr"><span id="r-price"></span> <small>EGP</small></p>
+          <div id="range-bar" dir="ltr"></div>
+          <p class="label" id="r-range"></p>
+        </div>
+        <div class="card pad verdict-card">
+          <p class="label">الحكم</p>
+          <span id="r-badge" class="badge"></span>
+          <p class="diff" dir="ltr" id="r-diff"></p>
+          <p class="diff-text" id="r-diff-text"></p>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="card kpi"><p class="label">سعر المتر المتوقع</p><p class="kpi-v"><span id="k-pred"></span> <small>ج.م/م²</small></p></div>
+        <div class="card kpi"><p class="label">سعر المتر المعروض</p><p class="kpi-v"><span id="k-ask"></span> <small>ج.م/م²</small></p></div>
+        <div class="card kpi"><p class="label">الفرق بالجنيه</p><p class="kpi-v"><span id="k-diff" dir="ltr"></span> <small>ج.م</small></p></div>
+        <div class="card kpi"><p class="label">مستوى الثقة</p><p class="kpi-v" id="k-conf"></p><p class="label sm" id="k-conf-note"></p></div>
+      </div>
+
+      <div class="bottom">
+        <div class="card pad">
+          <h3>متوسط سعر المتر في الحي · آخر 24 شهرًا</h3>
+          <div class="chart-wrap"><canvas id="trend-chart" role="img" aria-label="رسم بياني لمتوسط سعر المتر في الحي خلال آخر 24 شهرًا مع توقع للأشهر القادمة"></canvas></div>
+          <p class="label sm">الخط المتقطع توقع تقريبي مبني على اتجاه آخر 12 شهرًا.</p>
+        </div>
+        <div class="card pad">
+          <h3>صفقات مشابهة</h3>
+          <ul id="comps" class="comps"></ul>
+        </div>
+      </div>
+      <p class="fine">النتيجة تقدير استرشادي وليست تقييمًا رسميًا، ولا يجب الاعتماد عليها وحدها في أي قرار مالي أو قانوني.</p>
+    </section>
+{% endblock %}
+{% block scripts %}
+  <script src="{{ url_for('static', filename='vendor/chart.umd.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}

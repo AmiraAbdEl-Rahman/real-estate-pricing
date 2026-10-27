@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ platform }}{% endblock %}</title>
+  <meta name="description" content="اعرف السعر العادل المتوقع للعقار وقارنه بالسعر المعروض.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0B1F33"/><path d="M8 17 16 9l8 8v7H8z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><rect x="14" y="18" width="4" height="6" fill="#2DD4BF"/></svg>
+      <span>{{ platform }}</span>
+    </a>
+    <nav class="nav" aria-label="التنقل الرئيسي">
+      <a href="{{ url_for('index') }}"{% if active == 'estimate' %} aria-current="page"{% endif %}>تقدير السعر</a>
+      <a href="{{ url_for('history_page') }}"{% if active == 'history' %} aria-current="page"{% endif %}>سجل التقديرات</a>
+    </nav>
+    <span class="tagline">تسعير العقارات تنبؤيًا</span>
+  </header>
+
+  <main class="container">
+{% block content %}{% endblock %}
+  </main>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>
